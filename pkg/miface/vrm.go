@@ -90,9 +90,6 @@ func ParseVRMSkeleton(r io.Reader) (*VRMSkeleton, error) {
 		return nil, fmt.Errorf("unsupported glTF version: %d", version)
 	}
 
-	// Total file length
-	// length := binary.LittleEndian.Uint32(header[8:12])
-
 	// Read JSON chunk header
 	chunkHeader := make([]byte, 8)
 	if _, err := io.ReadFull(r, chunkHeader); err != nil {
