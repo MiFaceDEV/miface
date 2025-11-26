@@ -105,7 +105,7 @@ func TestTrackerSubscribe(t *testing.T) {
 	select {
 	case data := <-ch:
 		if data == nil {
-			t.Error("received nil data")
+			t.Fatalf("received nil data")
 		}
 		if data.FrameNumber == 0 {
 			t.Error("expected non-zero frame number")
