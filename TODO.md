@@ -33,20 +33,25 @@ This document tracks the implementation status and remaining work for MiFace, a 
 
 ### Webcam Integration
 - [x] `CameraSource` interface defined
-- [ ] **OpenCV/GoCV webcam capture implementation**
-  - [ ] Install and integrate `gocv.io/x/gocv` (OpenCV bindings)
-  - [ ] Implement `OpenCVCamera` struct implementing `CameraSource`
-  - [ ] Support for V4L2 on Linux
-  - [ ] Device enumeration and selection by ID
-  - [ ] Resolution and FPS configuration
-  - [ ] Error handling for camera access permissions
-  - [ ] Graceful fallback if camera unavailable
+- [x] **OpenCV/GoCV webcam capture implementation**
+  - [x] Install and integrate `gocv.io/x/gocv` (OpenCV bindings)
+  - [x] Implement `OpenCVCamera` struct implementing `CameraSource`
+  - [x] Support for V4L2 on Linux (explicit V4L2 backend, no GStreamer)
+  - [x] Device enumeration and selection by ID
+  - [x] Resolution and FPS configuration
+  - [x] MJPEG codec configuration for USB webcam compatibility
+  - [x] Error handling for camera access permissions
+  - [x] Graceful fallback if camera unavailable
+  - [x] **Horizontal flip (mirror mode) support for VTubing**
+  - [x] BGR to RGB color conversion
+  - [x] Integration in CLI (`cmd/miface/main.go`)
+  - [x] Unit tests and benchmarks
 - [ ] **Alternative: Pure Go capture using `github.com/blackjack/webcam`**
   - [ ] Evaluate performance vs OpenCV
   - [ ] MJPEG/YUYV format support
   - [ ] Frame format conversion to RGB24
 - [~] Mock camera for testing (tracker generates stub data, but no formal mock)
-- [ ] Camera capabilities detection (supported resolutions/framerates)
+- [~] Camera capabilities detection (basic enumeration implemented)
 - [ ] Auto-exposure and white balance configuration
 
 ---

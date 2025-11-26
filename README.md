@@ -116,6 +116,9 @@ for _, bone := range bones {
 # Run with default settings
 miface
 
+# Show camera preview window (debug mode)
+miface -preview
+
 # Use custom configuration
 miface -config config.toml
 
@@ -125,9 +128,32 @@ miface -vmc-addr 192.168.1.100 -vmc-port 39540
 # Calibrate with VRM model
 miface -vrm model.vrm -verbose
 
+# Show version
+miface -version
+
 # Show help
 miface -help
 ```
+
+## Development
+
+### Building
+
+```bash
+# Using Makefile
+make build          # Build binary to bin/miface
+make test           # Run all tests
+make test-coverage  # Run tests with coverage report
+make bench          # Run benchmarks
+make install        # Install to $GOPATH/bin
+make run-preview    # Build and run with preview window
+
+# Manual build
+go build -o miface ./cmd/miface
+go test ./...
+```
+
+See [BUILDING.md](BUILDING.md) for platform-specific build instructions and dependencies.
 
 ## Configuration
 

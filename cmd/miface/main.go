@@ -25,6 +25,8 @@ func main() {
 	vmcPort := flag.Int("vmc-port", 0, "VMC target port (overrides config)")
 	cameraID := flag.Int("camera", -1, "Camera device ID (overrides config)")
 	vrmPath := flag.String("vrm", "", "Path to VRM file for calibration")
+	noMirror := flag.Bool("no-mirror", false, "Disable horizontal flip (mirror mode)")
+	preview := flag.Bool("preview", false, "Show camera preview window (debug mode)")
 	verbose := flag.Bool("verbose", false, "Enable verbose output")
 
 	flag.Usage = func() {
@@ -35,6 +37,7 @@ func main() {
 		fmt.Fprintf(os.Stderr, "\nExamples:\n")
 		fmt.Fprintf(os.Stderr, "  %s                          # Run with default settings\n", os.Args[0])
 		fmt.Fprintf(os.Stderr, "  %s -config config.toml      # Run with custom config\n", os.Args[0])
+		fmt.Fprintf(os.Stderr, "  %s -preview                 # Show camera preview window\n", os.Args[0])
 		fmt.Fprintf(os.Stderr, "  %s -vmc-port 39540          # Override VMC port\n", os.Args[0])
 		fmt.Fprintf(os.Stderr, "  %s -vrm model.vrm           # Calibrate with VRM model\n", os.Args[0])
 	}
@@ -107,6 +110,35 @@ func main() {
 	}
 	defer tracker.Close()
 
+	// Set up OpenCV camera
+	mirror := !*noMirror // Mirror enabled by default for VTubing
+	camera := miface.NewOpenCVCamera(mirror)
+	if err := camera.Open(cfg.Camera.DeviceID, cfg.Camera.Width, cfg.Camera.Height, cfg.Camera.FPS); err != nil {
+		log.Fatalf("Failed to open camera: %v", err)
+	}
+	if err := tracker.SetCameraSource(camera); err != nil {
+		log.Fatalf("Failed to set camera source: %v", err)
+	}
+
+	// Log actual camera settings
+	actualWidth, actualHeight := camera.GetActualResolution()
+	actualFPS := camera.GetActualFPS()
+	if *verbose {
+		log.Printf("Camera opened: device=%d, resolution=%dx%d, fps=%d, mirror=%v",
+			cfg.Camera.DeviceID, actualWidth, actualHeight, actualFPS, mirror)
+	} else {
+		log.Printf("Camera opened: %dx%d@%dfps", actualWidth, actualHeight, actualFPS)
+	}
+
+	// Set up preview window if enabled
+	if *preview {
+		previewWindow := miface.NewPreviewWindow("MiFace Preview")
+		if err := tracker.SetPreviewWindow(previewWindow); err != nil {
+			log.Fatalf("Failed to set preview window: %v", err)
+		}
+		log.Println("Preview window enabled")
+	}
+
 	// Set up VMC sender if enabled
 	if cfg.VMC.Enabled {
 		vmcSender, err := miface.NewVMCSender(cfg.VMC.Address, cfg.VMC.Port)
@@ -136,25 +168,32 @@ func main() {
 	signal.Notify(sigCh, syscall.SIGINT, syscall.SIGTERM)
 
 	// Main loop
-	frameCount := uint64(0)
-	for {
-		select {
-		case sig := <-sigCh:
-			log.Printf("Received signal %v, shutting down...", sig)
-			return
-
-		case data, ok := <-dataCh:
-			if !ok {
+	if *verbose && dataCh != nil {
+		// Verbose mode: log tracking data
+		frameCount := uint64(0)
+		for {
+			select {
+			case sig := <-sigCh:
+				log.Printf("Received signal %v, shutting down...", sig)
 				return
-			}
-			frameCount++
-			if frameCount%30 == 0 { // Log every 30 frames (~1 second at 30fps)
-				log.Printf("Frame %d: face=%v, leftHand=%v, rightHand=%v",
-					data.FrameNumber,
-					data.Face != nil,
-					data.LeftHand != nil,
-					data.RightHand != nil)
+
+			case data, ok := <-dataCh:
+				if !ok {
+					return
+				}
+				frameCount++
+				if frameCount%30 == 0 { // Log every 30 frames (~1 second at 30fps)
+					log.Printf("Frame %d: face=%v, leftHand=%v, rightHand=%v",
+						data.FrameNumber,
+						data.Face != nil,
+						data.LeftHand != nil,
+						data.RightHand != nil)
+				}
 			}
 		}
+	} else {
+		// Non-verbose mode: just wait for shutdown signal
+		sig := <-sigCh
+		log.Printf("Received signal %v, shutting down...", sig)
 	}
 }

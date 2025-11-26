@@ -58,11 +58,11 @@ import (
 
 // Common errors returned by MiFace.
 var (
-	ErrTrackerClosed   = errors.New("tracker is closed")
-	ErrTrackerRunning  = errors.New("tracker is already running")
-	ErrTrackerStopped  = errors.New("tracker is not running")
-	ErrCameraNotFound  = errors.New("camera device not found")
-	ErrMediaPipeInit   = errors.New("failed to initialize MediaPipe")
+	ErrTrackerClosed  = errors.New("tracker is closed")
+	ErrTrackerRunning = errors.New("tracker is already running")
+	ErrTrackerStopped = errors.New("tracker is not running")
+	ErrCameraNotFound = errors.New("camera device not found")
+	ErrMediaPipeInit  = errors.New("failed to initialize MediaPipe")
 )
 
 // Point3D represents a 3D coordinate.
@@ -189,6 +189,7 @@ type Tracker struct {
 	camera      CameraSource
 	processor   Processor
 	vmcSender   Sender
+	preview     *PreviewWindow
 	subscribers []chan *TrackingData
 
 	ctx    context.Context
@@ -265,6 +266,19 @@ func (t *Tracker) SetVMCSender(sender Sender) error {
 		return fmt.Errorf("cannot set VMC sender: tracker is %s", t.state)
 	}
 	t.vmcSender = sender
+	return nil
+}
+
+// SetPreviewWindow sets the preview window for debug visualization.
+// Must be called before Start().
+func (t *Tracker) SetPreviewWindow(preview *PreviewWindow) error {
+	t.mu.Lock()
+	defer t.mu.Unlock()
+
+	if t.state != StateIdle {
+		return fmt.Errorf("cannot set preview window: tracker is %s", t.state)
+	}
+	t.preview = preview
 	return nil
 }
 
@@ -354,6 +368,11 @@ func (t *Tracker) Close() error {
 			errs = append(errs, fmt.Errorf("closing VMC sender: %w", err))
 		}
 	}
+	if t.preview != nil {
+		if err := t.preview.Close(); err != nil {
+			errs = append(errs, fmt.Errorf("closing preview window: %w", err))
+		}
+	}
 
 	// Close subscriber channels
 	for _, ch := range t.subscribers {
@@ -391,6 +410,8 @@ func (t *Tracker) processFrame() {
 	camera := t.camera
 	processor := t.processor
 	vmcSender := t.vmcSender
+	preview := t.preview
+	subscribers := t.subscribers
 	t.mu.RUnlock()
 
 	// Generate mock data if no camera/processor configured
@@ -398,13 +419,20 @@ func (t *Tracker) processFrame() {
 	if camera != nil && processor != nil {
 		frame, width, height, err := camera.Read()
 		if err != nil {
+			// Silent return - errors are expected during shutdown
 			return
 		}
 
-		var pErr error
-		data, pErr = processor.Process(t.ctx, frame, width, height)
-		if pErr != nil {
+		data, err = processor.Process(t.ctx, frame, width, height)
+		if err != nil {
 			return
+		}
+	} else if camera != nil {
+		// Camera only mode (for preview without processor)
+		// Just read for preview, generate stub data
+		data = &TrackingData{
+			Timestamp:   time.Now(),
+			FrameNumber: t.frameCount,
 		}
 	} else {
 		// Generate stub tracking data for testing
@@ -412,6 +440,11 @@ func (t *Tracker) processFrame() {
 			Timestamp:   time.Now(),
 			FrameNumber: t.frameCount,
 		}
+	}
+
+	// Show preview if enabled (do this before processing to reduce latency)
+	if preview != nil && camera != nil {
+		t.showPreview(camera, preview)
 	}
 
 	t.frameCount++
@@ -423,16 +456,27 @@ func (t *Tracker) processFrame() {
 		_ = vmcSender.Send(data)
 	}
 
-	// Broadcast to subscribers
-	t.mu.RLock()
-	subscribers := t.subscribers
-	t.mu.RUnlock()
-
+	// Broadcast to subscribers (already captured above)
 	for _, ch := range subscribers {
 		select {
 		case ch <- data:
 		default:
 			// Drop frame if subscriber is slow
 		}
+	}
+}
+
+// showPreview displays the current frame in the preview window.
+// This method is only compiled when CGO is enabled (same as PreviewWindow).
+func (t *Tracker) showPreview(camera CameraSource, preview *PreviewWindow) {
+	// Type assert to OpenCVCamera to access ReadMat
+	if ocvCam, ok := camera.(*OpenCVCamera); ok {
+		mat, err := ocvCam.ReadMat()
+		if err != nil {
+			return
+		}
+		// Don't defer close - Show() clones the mat
+		preview.Show(mat)
+		mat.Close()
 	}
 }
