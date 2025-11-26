@@ -4,6 +4,7 @@
 package miface
 
 import (
+	"runtime"
 	"testing"
 	"time"
 
@@ -11,6 +12,9 @@ import (
 )
 
 func TestNewPreviewWindow(t *testing.T) {
+	if runtime.GOOS == "darwin" {
+		t.Skip("Skipping GUI test on macOS: NSWindow requires main thread")
+	}
 	preview := NewPreviewWindow("Test Window")
 	if preview == nil {
 		t.Fatal("NewPreviewWindow returned nil")
@@ -19,6 +23,9 @@ func TestNewPreviewWindow(t *testing.T) {
 }
 
 func TestPreviewWindow_Show(t *testing.T) {
+	if runtime.GOOS == "darwin" {
+		t.Skip("Skipping GUI test on macOS: NSWindow requires main thread")
+	}
 	preview := NewPreviewWindow("Test Window")
 	defer preview.Close()
 
@@ -34,6 +41,9 @@ func TestPreviewWindow_Show(t *testing.T) {
 }
 
 func TestPreviewWindow_Close(t *testing.T) {
+	if runtime.GOOS == "darwin" {
+		t.Skip("Skipping GUI test on macOS: NSWindow requires main thread")
+	}
 	preview := NewPreviewWindow("Test Window")
 
 	err := preview.Close()
@@ -49,6 +59,9 @@ func TestPreviewWindow_Close(t *testing.T) {
 }
 
 func TestPreviewWindow_ShowMultiple(t *testing.T) {
+	if runtime.GOOS == "darwin" {
+		t.Skip("Skipping GUI test on macOS: NSWindow requires main thread")
+	}
 	preview := NewPreviewWindow("Test Window")
 	defer preview.Close()
 
