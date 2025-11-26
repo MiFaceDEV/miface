@@ -10,6 +10,7 @@ jobs:
   test:
     name: Test
     runs-on: ${{ matrix.os }}
+    container: ${{ matrix.os == 'ubuntu-latest' && 'ghcr.io/hybridgroup/opencv:4.10.0' || '' }}
     strategy:
       matrix:
         os: [ubuntu-latest, macos-latest]
@@ -23,18 +24,6 @@ jobs:
       uses: actions/setup-go@v5
       with:
         go-version: ${{ matrix.go }}
-
-    - name: Install OpenCV (Ubuntu)
-      if: matrix.os == 'ubuntu-latest'
-      run: |
-        sudo apt-get update
-        sudo apt-get install -y \
-          libopencv-dev \
-          libopencv-core-dev \
-          libopencv-highgui-dev \
-          libopencv-videoio-dev \
-          libopencv-imgproc-dev \
-          pkg-config
 
     - name: Install OpenCV (macOS)
       if: matrix.os == 'macos-latest'
@@ -56,6 +45,7 @@ jobs:
   lint:
     name: Lint
     runs-on: ubuntu-latest
+    container: ghcr.io/hybridgroup/opencv:4.10.0
     
     steps:
     - name: Checkout code
@@ -65,17 +55,6 @@ jobs:
       uses: actions/setup-go@v5
       with:
         go-version: '1.23'
-
-    - name: Install OpenCV
-      run: |
-        sudo apt-get update
-        sudo apt-get install -y \
-          libopencv-dev \
-          libopencv-core-dev \
-          libopencv-highgui-dev \
-          libopencv-videoio-dev \
-          libopencv-imgproc-dev \
-          pkg-config
 
     - name: golangci-lint
       uses: golangci/golangci-lint-action@v4
@@ -86,6 +65,7 @@ jobs:
   build:
     name: Build Binaries
     runs-on: ubuntu-latest
+    container: ghcr.io/hybridgroup/opencv:4.10.0
     needs: [test, lint]
     
     steps:
@@ -96,17 +76,6 @@ jobs:
       uses: actions/setup-go@v5
       with:
         go-version: '1.23'
-
-    - name: Install OpenCV
-      run: |
-        sudo apt-get update
-        sudo apt-get install -y \
-          libopencv-dev \
-          libopencv-core-dev \
-          libopencv-highgui-dev \
-          libopencv-videoio-dev \
-          libopencv-imgproc-dev \
-          pkg-config
 
     - name: Build for Linux
       run: |
