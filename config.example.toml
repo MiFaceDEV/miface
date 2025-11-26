@@ -1,0 +1,29 @@
+# MiFace Configuration
+# Copy this file to config.toml and customize as needed
+
+[camera]
+# Camera device index (0 = default camera)
+device_id = 0
+# Capture resolution (1280x720 recommended for good tracking quality)
+width = 1280
+height = 720
+# Target frame rate
+fps = 30
+
+[tracking]
+# Enable face landmark tracking (468 mesh points)
+enable_face = true
+# Enable hand tracking (21 landmarks per hand)
+enable_hands = true
+# Enable pose/body tracking (33 landmarks)
+enable_pose = true
+# Smoothing factor: 0.0 = maximum smoothing (slow), 1.0 = no smoothing (jittery)
+smoothing_factor = 0.5
+
+[vmc]
+# Enable VMC protocol output (uses OSC for communication)
+enabled = true
+# Target IP address (VTuber application)
+address = "127.0.0.1"
+# Target UDP port (39539 = VSeeFace default)
+port = 39539
