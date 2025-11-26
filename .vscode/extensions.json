@@ -1,0 +1,10 @@
+{
+    "recommendations": [
+        "golang.go",
+        "tamasfe.even-better-toml",
+        "redhat.vscode-yaml",
+        "gruntfuggly.todo-tree",
+        "esbenp.prettier-vscode",
+        "christian-kohler.path-intellisense"
+    ]
+}
