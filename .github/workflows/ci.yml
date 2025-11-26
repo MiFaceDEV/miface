@@ -45,10 +45,10 @@ jobs:
       run: go mod download
 
     - name: Build
-      run: go build -tags gocv_specific_modules -ldflags "-s -w" -o bin/miface ./cmd/miface
+      run: make build
 
     - name: Run tests
-      run: go test -tags gocv_specific_modules ./...
+      run: make test
 
     - name: Run go vet
       run: make vet
@@ -65,6 +65,17 @@ jobs:
       uses: actions/setup-go@v5
       with:
         go-version: '1.23'
+
+    - name: Install OpenCV
+      run: |
+        sudo apt-get update
+        sudo apt-get install -y \
+          libopencv-dev \
+          libopencv-core-dev \
+          libopencv-highgui-dev \
+          libopencv-videoio-dev \
+          libopencv-imgproc-dev \
+          pkg-config
 
     - name: golangci-lint
       uses: golangci/golangci-lint-action@v4
@@ -99,8 +110,8 @@ jobs:
 
     - name: Build for Linux
       run: |
-        mkdir -p bin
-        GOOS=linux GOARCH=amd64 go build -tags gocv_specific_modules -ldflags "-s -w" -o bin/miface-linux-amd64 ./cmd/miface
+        GOOS=linux GOARCH=amd64 make build
+        mv bin/miface bin/miface-linux-amd64
 
     - name: Upload artifacts
       uses: actions/upload-artifact@v4
