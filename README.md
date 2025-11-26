@@ -1,3 +1,5 @@
+> ⚠️ This project is in beta, the core was made with AI (AI isnt able to do everything and only do repetitive tasks) and is being improved and refactored continuously by humans (mainly me, MiguVT)
+
 # MiFace
 
 Real-time facial and upper body tracking library for VTubers. MediaPipe Holistic + Kalman filtering + VMC/OSC sender. Go library with CLI.
