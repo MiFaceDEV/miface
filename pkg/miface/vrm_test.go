@@ -65,11 +65,11 @@ func createTestVRM(t *testing.T) []byte {
 
 	// Header
 	buf.Write([]byte("glTF"))                                    // magic
-	binary.Write(&buf, binary.LittleEndian, uint32(2))           // version
-	binary.Write(&buf, binary.LittleEndian, uint32(12+8+len(jsonData))) // total length
+	_ = binary.Write(&buf, binary.LittleEndian, uint32(2))           // version
+	_ = binary.Write(&buf, binary.LittleEndian, uint32(12+8+len(jsonData))) // total length
 
 	// JSON chunk
-	binary.Write(&buf, binary.LittleEndian, uint32(len(jsonData))) // chunk length
+	_ = binary.Write(&buf, binary.LittleEndian, uint32(len(jsonData))) // chunk length
 	buf.Write([]byte("JSON"))                                      // chunk type
 	buf.Write(jsonData)
 
@@ -121,8 +121,8 @@ func TestParseVRMSkeletonInvalidMagic(t *testing.T) {
 func TestParseVRMSkeletonInvalidVersion(t *testing.T) {
 	var buf bytes.Buffer
 	buf.Write([]byte("glTF"))
-	binary.Write(&buf, binary.LittleEndian, uint32(1)) // version 1 not supported
-	binary.Write(&buf, binary.LittleEndian, uint32(12))
+	_ = binary.Write(&buf, binary.LittleEndian, uint32(1)) // version 1 not supported
+	_ = binary.Write(&buf, binary.LittleEndian, uint32(12))
 
 	reader := bytes.NewReader(buf.Bytes())
 	_, err := ParseVRMSkeleton(reader)
@@ -259,9 +259,9 @@ func createTestVRM1(t *testing.T) []byte {
 
 	var buf bytes.Buffer
 	buf.Write([]byte("glTF"))
-	binary.Write(&buf, binary.LittleEndian, uint32(2))
-	binary.Write(&buf, binary.LittleEndian, uint32(12+8+len(jsonData)))
-	binary.Write(&buf, binary.LittleEndian, uint32(len(jsonData)))
+	_ = binary.Write(&buf, binary.LittleEndian, uint32(2))
+	_ = binary.Write(&buf, binary.LittleEndian, uint32(12+8+len(jsonData)))
+	_ = binary.Write(&buf, binary.LittleEndian, uint32(len(jsonData)))
 	buf.Write([]byte("JSON"))
 	buf.Write(jsonData)
 

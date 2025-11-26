@@ -54,7 +54,7 @@ func (p *PreviewWindow) previewLoop(title string) {
 	for {
 		select {
 		case frame := <-p.frameCh:
-			p.window.IMShow(frame)
+			_ = p.window.IMShow(frame)
 			p.window.WaitKey(1)
 			frame.Close() // Close the frame after displaying
 

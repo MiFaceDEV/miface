@@ -160,7 +160,7 @@ func BenchmarkOpenCVCamera_Read(b *testing.B) {
 	defer camera.Close()
 
 	// Warm up
-	camera.Read()
+	_, _, _, _ = camera.Read()
 	time.Sleep(100 * time.Millisecond)
 
 	b.ResetTimer()
