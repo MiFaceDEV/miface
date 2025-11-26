@@ -45,10 +45,10 @@ jobs:
       run: go mod download
 
     - name: Build
-      run: make build
+      run: go build -tags gocv_specific_modules -ldflags "-s -w" -o bin/miface ./cmd/miface
 
     - name: Run tests
-      run: make test
+      run: go test -tags gocv_specific_modules ./...
 
     - name: Run go vet
       run: make vet
@@ -99,8 +99,8 @@ jobs:
 
     - name: Build for Linux
       run: |
-        GOOS=linux GOARCH=amd64 make build
-        mv bin/miface bin/miface-linux-amd64
+        mkdir -p bin
+        GOOS=linux GOARCH=amd64 go build -tags gocv_specific_modules -ldflags "-s -w" -o bin/miface-linux-amd64 ./cmd/miface
 
     - name: Upload artifacts
       uses: actions/upload-artifact@v4
