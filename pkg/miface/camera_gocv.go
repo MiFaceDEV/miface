@@ -129,13 +129,13 @@ func (c *OpenCVCamera) Read() ([]byte, int, int, error) {
 
 	// Apply horizontal flip if mirror mode enabled
 	if c.mirror {
-		gocv.Flip(mat, &mat, 1) // 1 = flip horizontally
+		gocv.Flip(mat, &mat, 1) //nolint:errcheck // gocv.Flip doesn't return error
 	}
 
 	// Convert BGR to RGB (OpenCV uses BGR by default)
 	rgbMat := gocv.NewMat()
 	defer rgbMat.Close()
-	gocv.CvtColor(mat, &rgbMat, gocv.ColorBGRToRGB)
+	gocv.CvtColor(mat, &rgbMat, gocv.ColorBGRToRGB) //nolint:errcheck // gocv.CvtColor doesn't return error
 
 	// Get frame dimensions
 	width := rgbMat.Cols()
@@ -177,7 +177,7 @@ func (c *OpenCVCamera) ReadMat() (gocv.Mat, error) {
 
 	// Apply horizontal flip if mirror mode enabled
 	if c.mirror {
-		gocv.Flip(result, &result, 1) // 1 = flip horizontally
+		gocv.Flip(result, &result, 1) //nolint:errcheck // gocv.Flip doesn't return error
 	}
 
 	return result, nil
