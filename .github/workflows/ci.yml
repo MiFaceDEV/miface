@@ -28,7 +28,7 @@ jobs:
       if: matrix.os == 'ubuntu-latest'
       run: |
         sudo apt-get update
-        sudo apt-get install -y libopencv-dev
+        sudo apt-get install -y libopencv-dev libopencv-contrib-dev
 
     - name: Install OpenCV (macOS)
       if: matrix.os == 'macos-latest'
@@ -83,7 +83,7 @@ jobs:
     - name: Install OpenCV
       run: |
         sudo apt-get update
-        sudo apt-get install -y libopencv-dev
+        sudo apt-get install -y libopencv-dev libopencv-contrib-dev
 
     - name: Build for Linux
       run: |
