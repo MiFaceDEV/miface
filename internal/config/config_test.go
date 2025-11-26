@@ -12,11 +12,11 @@ func TestDefault(t *testing.T) {
 	if cfg.Camera.DeviceID != 0 {
 		t.Errorf("expected DeviceID 0, got %d", cfg.Camera.DeviceID)
 	}
-	if cfg.Camera.Width != 640 {
-		t.Errorf("expected Width 640, got %d", cfg.Camera.Width)
+	if cfg.Camera.Width != 1280 {
+		t.Errorf("expected Width 1280, got %d", cfg.Camera.Width)
 	}
-	if cfg.Camera.Height != 480 {
-		t.Errorf("expected Height 480, got %d", cfg.Camera.Height)
+	if cfg.Camera.Height != 720 {
+		t.Errorf("expected Height 720, got %d", cfg.Camera.Height)
 	}
 	if cfg.Camera.FPS != 30 {
 		t.Errorf("expected FPS 30, got %d", cfg.Camera.FPS)
@@ -38,9 +38,6 @@ func TestDefault(t *testing.T) {
 	}
 	if cfg.VMC.Port != 39539 {
 		t.Errorf("expected VMC.Port 39539, got %d", cfg.VMC.Port)
-	}
-	if cfg.OSC.Enabled {
-		t.Error("expected OSC.Enabled to be false")
 	}
 }
 
@@ -68,8 +65,8 @@ func TestLoad_ValidFile(t *testing.T) {
 	content := `
 [camera]
 device_id = 1
-width = 1280
-height = 720
+width = 1920
+height = 1080
 fps = 60
 
 [tracking]
@@ -82,11 +79,6 @@ smoothing_factor = 0.8
 enabled = false
 address = "192.168.1.100"
 port = 39540
-
-[osc]
-enabled = true
-address = "192.168.1.100"
-port = 9001
 `
 	dir := t.TempDir()
 	path := filepath.Join(dir, "config.toml")
@@ -102,11 +94,11 @@ port = 9001
 	if cfg.Camera.DeviceID != 1 {
 		t.Errorf("expected DeviceID 1, got %d", cfg.Camera.DeviceID)
 	}
-	if cfg.Camera.Width != 1280 {
-		t.Errorf("expected Width 1280, got %d", cfg.Camera.Width)
+	if cfg.Camera.Width != 1920 {
+		t.Errorf("expected Width 1920, got %d", cfg.Camera.Width)
 	}
-	if cfg.Camera.Height != 720 {
-		t.Errorf("expected Height 720, got %d", cfg.Camera.Height)
+	if cfg.Camera.Height != 1080 {
+		t.Errorf("expected Height 1080, got %d", cfg.Camera.Height)
 	}
 	if cfg.Camera.FPS != 60 {
 		t.Errorf("expected FPS 60, got %d", cfg.Camera.FPS)
@@ -125,9 +117,6 @@ port = 9001
 	}
 	if cfg.VMC.Port != 39540 {
 		t.Errorf("expected VMC.Port 39540, got %d", cfg.VMC.Port)
-	}
-	if !cfg.OSC.Enabled {
-		t.Error("expected OSC.Enabled to be true")
 	}
 }
 
@@ -191,18 +180,5 @@ func TestValidate_InvalidVMCPort(t *testing.T) {
 	cfg.VMC.Port = 70000
 	if err := cfg.Validate(); err == nil {
 		t.Error("expected error for VMC port > 65535")
-	}
-}
-
-func TestValidate_InvalidOSCPort(t *testing.T) {
-	cfg := Default()
-	cfg.OSC.Port = 0
-	if err := cfg.Validate(); err == nil {
-		t.Error("expected error for OSC port 0")
-	}
-
-	cfg.OSC.Port = 70000
-	if err := cfg.Validate(); err == nil {
-		t.Error("expected error for OSC port > 65535")
 	}
 }

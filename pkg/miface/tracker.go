@@ -189,7 +189,6 @@ type Tracker struct {
 	camera      CameraSource
 	processor   Processor
 	vmcSender   Sender
-	oscSender   Sender
 	subscribers []chan *TrackingData
 
 	ctx    context.Context
@@ -266,19 +265,6 @@ func (t *Tracker) SetVMCSender(sender Sender) error {
 		return fmt.Errorf("cannot set VMC sender: tracker is %s", t.state)
 	}
 	t.vmcSender = sender
-	return nil
-}
-
-// SetOSCSender sets the OSC protocol sender.
-// Must be called before Start().
-func (t *Tracker) SetOSCSender(sender Sender) error {
-	t.mu.Lock()
-	defer t.mu.Unlock()
-
-	if t.state != StateIdle {
-		return fmt.Errorf("cannot set OSC sender: tracker is %s", t.state)
-	}
-	t.oscSender = sender
 	return nil
 }
 
@@ -368,11 +354,6 @@ func (t *Tracker) Close() error {
 			errs = append(errs, fmt.Errorf("closing VMC sender: %w", err))
 		}
 	}
-	if t.oscSender != nil {
-		if err := t.oscSender.Close(); err != nil {
-			errs = append(errs, fmt.Errorf("closing OSC sender: %w", err))
-		}
-	}
 
 	// Close subscriber channels
 	for _, ch := range t.subscribers {
@@ -410,7 +391,6 @@ func (t *Tracker) processFrame() {
 	camera := t.camera
 	processor := t.processor
 	vmcSender := t.vmcSender
-	oscSender := t.oscSender
 	t.mu.RUnlock()
 
 	// Generate mock data if no camera/processor configured
@@ -438,12 +418,9 @@ func (t *Tracker) processFrame() {
 	data.FrameNumber = t.frameCount
 	data.Timestamp = time.Now()
 
-	// Send to protocol senders
+	// Send to VMC sender
 	if vmcSender != nil {
 		_ = vmcSender.Send(data)
-	}
-	if oscSender != nil {
-		_ = oscSender.Send(data)
 	}
 
 	// Broadcast to subscribers

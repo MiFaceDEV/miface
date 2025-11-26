@@ -4,8 +4,8 @@
 //
 //	[camera]
 //	device_id = 0
-//	width = 640
-//	height = 480
+//	width = 1280
+//	height = 720
 //	fps = 30
 //
 //	[tracking]
@@ -18,11 +18,6 @@
 //	enabled = true
 //	address = "127.0.0.1"
 //	port = 39539
-//
-//	[osc]
-//	enabled = false
-//	address = "127.0.0.1"
-//	port = 9000
 //
 // Example usage:
 //
@@ -45,16 +40,15 @@ type Config struct {
 	Camera   CameraConfig   `toml:"camera"`
 	Tracking TrackingConfig `toml:"tracking"`
 	VMC      VMCConfig      `toml:"vmc"`
-	OSC      OSCConfig      `toml:"osc"`
 }
 
 // CameraConfig holds webcam capture settings.
 type CameraConfig struct {
 	// DeviceID is the camera device index (default: 0).
 	DeviceID int `toml:"device_id"`
-	// Width is the capture width in pixels (default: 640).
+	// Width is the capture width in pixels (default: 1280).
 	Width int `toml:"width"`
-	// Height is the capture height in pixels (default: 480).
+	// Height is the capture height in pixels (default: 720).
 	Height int `toml:"height"`
 	// FPS is the target frame rate (default: 30).
 	FPS int `toml:"fps"`
@@ -72,7 +66,8 @@ type TrackingConfig struct {
 	SmoothingFactor float64 `toml:"smoothing_factor"`
 }
 
-// VMCConfig holds VMC protocol sender settings.
+// VMCConfig holds VMC (Virtual Motion Capture) protocol sender settings.
+// VMC uses the OSC protocol for communication.
 type VMCConfig struct {
 	// Enabled enables VMC protocol output (default: true).
 	Enabled bool `toml:"enabled"`
@@ -82,23 +77,13 @@ type VMCConfig struct {
 	Port int `toml:"port"`
 }
 
-// OSCConfig holds OSC protocol sender settings.
-type OSCConfig struct {
-	// Enabled enables OSC protocol output (default: false).
-	Enabled bool `toml:"enabled"`
-	// Address is the destination IP address (default: "127.0.0.1").
-	Address string `toml:"address"`
-	// Port is the destination UDP port (default: 9000).
-	Port int `toml:"port"`
-}
-
 // Default returns the default configuration.
 func Default() *Config {
 	return &Config{
 		Camera: CameraConfig{
 			DeviceID: 0,
-			Width:    640,
-			Height:   480,
+			Width:    1280,
+			Height:   720,
 			FPS:      30,
 		},
 		Tracking: TrackingConfig{
@@ -111,11 +96,6 @@ func Default() *Config {
 			Enabled: true,
 			Address: "127.0.0.1",
 			Port:    39539,
-		},
-		OSC: OSCConfig{
-			Enabled: false,
-			Address: "127.0.0.1",
-			Port:    9000,
 		},
 	}
 }
@@ -164,9 +144,6 @@ func (c *Config) Validate() error {
 	}
 	if c.VMC.Port <= 0 || c.VMC.Port > 65535 {
 		return fmt.Errorf("VMC port must be between 1 and 65535, got %d", c.VMC.Port)
-	}
-	if c.OSC.Port <= 0 || c.OSC.Port > 65535 {
-		return fmt.Errorf("OSC port must be between 1 and 65535, got %d", c.OSC.Port)
 	}
 	return nil
 }
