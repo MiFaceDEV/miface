@@ -64,13 +64,13 @@ func createTestVRM(t *testing.T) []byte {
 	var buf bytes.Buffer
 
 	// Header
-	buf.Write([]byte("glTF"))                                    // magic
-	_ = binary.Write(&buf, binary.LittleEndian, uint32(2))           // version
+	buf.Write([]byte("glTF"))                                               // magic
+	_ = binary.Write(&buf, binary.LittleEndian, uint32(2))                  // version
 	_ = binary.Write(&buf, binary.LittleEndian, uint32(12+8+len(jsonData))) // total length
 
 	// JSON chunk
 	_ = binary.Write(&buf, binary.LittleEndian, uint32(len(jsonData))) // chunk length
-	buf.Write([]byte("JSON"))                                      // chunk type
+	buf.Write([]byte("JSON"))                                          // chunk type
 	buf.Write(jsonData)
 
 	return buf.Bytes()
