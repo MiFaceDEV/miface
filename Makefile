@@ -15,7 +15,7 @@ GOMOD=$(GOCMD) mod
 GOFMT=$(GOCMD) fmt
 
 # Build flags
-LDFLAGS=-ldflags "-s -w"
+LDFLAGS=-ldflags "-s -w" -buildvcs=false
 VERSION?=0.1.0
 
 all: test build
