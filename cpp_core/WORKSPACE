@@ -1,0 +1,30 @@
+# Bazel WORKSPACE file for MediaPipe Bridge
+# This configures external dependencies
+
+workspace(name = "mediapipe_bridge")
+
+# Load MediaPipe repository
+# Option 1: Use http_archive to fetch MediaPipe
+load("@bazel_tools//tools/build_defs/repo:http_archive.bzl", "http_archive")
+
+# MediaPipe (adjust version as needed)
+http_archive(
+    name = "mediapipe",
+    urls = ["https://github.com/google/mediapipe/archive/v0.10.9.tar.gz"],
+    strip_prefix = "mediapipe-0.10.9",
+    sha256 = "...",  # Add checksum after first download
+)
+
+# Option 2: Use local MediaPipe repo (recommended for development)
+# local_repository(
+#     name = "mediapipe",
+#     path = "../mediapipe",  # Adjust path to your MediaPipe clone
+# )
+
+# Load MediaPipe dependencies
+load("@mediapipe//mediapipe:mediapipe.bzl", "mediapipe_workspace")
+mediapipe_workspace()
+
+# OpenCV (if not using system OpenCV)
+load("@mediapipe//third_party:opencv_linux.bzl", "opencv_linux_setup")
+opencv_linux_setup()

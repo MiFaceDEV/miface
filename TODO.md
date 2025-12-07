@@ -60,31 +60,30 @@ This document tracks the implementation status and remaining work for MiFace, a 
 
 ### MediaPipe Backend
 - [x] `Processor` interface defined
-- [ ] **Choose MediaPipe integration approach:**
-  - **Option A: CGO bindings to MediaPipe C++ API**
-    - [ ] Install MediaPipe from source or prebuilt binaries
-    - [ ] Create CGO wrapper for Holistic pipeline
-    - [ ] Memory management between Go and C++
-    - [ ] Thread safety considerations
-  - **Option B: Use `github.com/google/mediapipe` with Go bindings**
-    - [ ] Evaluate existing Go wrappers (if any)
-    - [ ] May require custom bindings
-  - **Option C: Python bridge via subprocess/RPC**
-    - [ ] Implement protocol buffer or JSON-based communication
-    - [ ] Latency concerns for real-time tracking
-- [ ] **Implement `MediaPipeProcessor` struct**
-  - [ ] Initialize Holistic model with static image mode = false
-  - [ ] Configure model complexity (0=lite, 1=full, 2=heavy)
-  - [ ] Min detection confidence threshold
-  - [ ] Min tracking confidence threshold
-- [ ] **Process RGB frames to get landmarks:**
-  - [ ] Face mesh: 468 landmarks
-  - [ ] Left hand: 21 landmarks
-  - [ ] Right hand: 21 landmarks
-  - [ ] Pose: 33 landmarks (focus on upper body: 0-16)
-- [ ] Convert MediaPipe normalized coordinates to 3D world coordinates
-- [ ] Handle landmark visibility/presence scores
-- [ ] GPU acceleration support (CUDA/OpenGL/Metal)
+- [~] **Choose MediaPipe integration approach: Option A (CGO bindings)**
+  - **Option A: CGO bindings to MediaPipe C++ API** ✓ CHOSEN
+    - [~] Install MediaPipe from source or prebuilt binaries (BUILD.md created)
+    - [x] Create CGO wrapper for Holistic pipeline (bridge.h/.cc skeleton)
+    - [x] Memory management between Go and C++ (MPResult with free function)
+    - [x] Thread safety considerations (mutex in Go layer)
+  - **Option B**: Rejected - no mature Go bindings exist
+  - **Option C**: Python bridge - fallback if Option A too complex
+- [~] **Implement `MediaPipeProcessor` struct**
+  - [x] Initialize Holistic model with static image mode = false
+  - [x] Configure model complexity (0=lite, 1=full, 2=heavy)
+  - [x] Min detection confidence threshold
+  - [x] Min tracking confidence threshold
+  - [ ] **CRITICAL: Complete C++ bridge.cc implementation with real MediaPipe API**
+  - [ ] **Build shared library with Bazel**
+- [~] **Process RGB frames to get landmarks:**
+  - [x] Face mesh: 468 landmarks (data structure ready)
+  - [x] Left hand: 21 landmarks (data structure ready)
+  - [x] Right hand: 21 landmarks (data structure ready)
+  - [x] Pose: 33 landmarks (data structure ready)
+  - [ ] **Wire up actual MediaPipe landmark extraction in bridge.cc**
+- [x] Convert MediaPipe normalized coordinates to 3D world coordinates (Go conversion ready)
+- [x] Handle landmark visibility/presence scores (included in Landmark struct)
+- [ ] GPU acceleration support (CUDA/OpenGL/Metal) - TODO in BUILD.md
 - [ ] Model caching and warm-up on initialization
 
 ### Coordinate System
