@@ -1,24 +1,17 @@
-# Binaries for programs and plugins
+# Build artifacts
+/target/
+/bin/
+/dist/
+
+# Native binaries and libraries
 *.exe
 *.exe~
 *.dll
 *.so
 *.dylib
 
-# Test binary, built with `go test -c`
-*.test
-
-# Output of the go coverage tool
-*.out
-
-# Go workspace file
-go.work
-
-# Build artifacts
-/miface
-/miface_test
-/bin/
-/dist/
+# Rust backup files
+**/*.rs.bk
 
 # IDE and editor files
 .vscode/
@@ -37,3 +30,7 @@ config.toml
 # Temporary files
 *.tmp
 *.log
+
+# Local environment
+.env
+.env.local
